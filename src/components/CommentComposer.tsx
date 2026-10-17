@@ -7,17 +7,26 @@ interface CommentComposerProps {
   nickname: string;
   onOpenNicknameModal: () => void;
   onSubmitComment: (text: string) => Promise<void>;
+  prefilledText?: string;
 }
 
 export const CommentComposer: React.FC<CommentComposerProps> = ({
   nickname,
   onOpenNicknameModal,
   onSubmitComment,
+  prefilledText,
 }) => {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  // Sync prefilledText if provided (e.g. from Trending Topic click)
+  useEffect(() => {
+    if (prefilledText) {
+      setText((prev) => (prev.includes(prefilledText) ? prev : prev ? `${prev} ${prefilledText}` : `${prefilledText} `));
+    }
+  }, [prefilledText]);
 
   // Check cooldown interval
   useEffect(() => {

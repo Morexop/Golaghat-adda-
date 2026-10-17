@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { CommentItem } from '../types/community';
 import { CommentComposer } from './CommentComposer';
 import { CommentCard } from './CommentCard';
 import { NicknameModal } from './NicknameModal';
 import { SuggestPinModal } from './SuggestPinModal';
 import { ReportModal } from './ReportModal';
+import { TrendingTopics } from './TrendingTopics';
+import { calculateTrendingTopics, filterCommentsByTopic } from '../lib/topicEngine';
 import {
   subscribeToComments,
   createComment,
@@ -24,6 +26,8 @@ export const PublicAdda: React.FC = () => {
   const [notification, setNotification] = useState<string | null>(null);
   const [pageSize, setPageSize] = useState(15);
   const [loading, setLoading] = useState(true);
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const [composerPrefill, setComposerPrefill] = useState<string | undefined>(undefined);
 
   // Load and listen to Firestore comments
   useEffect(() => {
@@ -66,6 +70,15 @@ export const PublicAdda: React.FC = () => {
   const pinnedComment = comments.find((c) => c.isPinned);
   const feedComments = comments.filter((c) => !c.isPinned);
 
+  // Calculate trending topics based on comment frequency
+  const trendingTopics = useMemo(() => calculateTrendingTopics(comments), [comments]);
+
+  // Filter feed comments based on selected topic
+  const filteredFeedComments = useMemo(
+    () => filterCommentsByTopic(feedComments, selectedTopicId),
+    [feedComments, selectedTopicId]
+  );
+
   return (
     <section id="public-adda" className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
       {/* Toast Notification */}
@@ -90,15 +103,29 @@ export const PublicAdda: React.FC = () => {
         </p>
       </div>
 
+      {/* Trending Topics Section */}
+      <TrendingTopics
+        topics={trendingTopics}
+        selectedTopicId={selectedTopicId}
+        onSelectTopic={(topicId) => setSelectedTopicId(topicId)}
+        totalCommentsCount={comments.length}
+        onInsertTag={(tag) => {
+          setComposerPrefill(tag);
+          const textarea = document.querySelector('textarea');
+          textarea?.focus();
+        }}
+      />
+
       {/* Comment Composer */}
       <CommentComposer
         nickname={nickname}
         onOpenNicknameModal={() => setIsNicknameModalOpen(true)}
         onSubmitComment={handlePostComment}
+        prefilledText={composerPrefill}
       />
 
-      {/* Pinned Announcement Message (if present) */}
-      {pinnedComment && (
+      {/* Pinned Announcement Message (if present and no topic filter or matches topic) */}
+      {pinnedComment && (!selectedTopicId || filterCommentsByTopic([pinnedComment], selectedTopicId).length > 0) && (
         <div className="mb-6">
           <CommentCard
             comment={pinnedComment}
@@ -121,16 +148,28 @@ export const PublicAdda: React.FC = () => {
             <RefreshCw className="w-5 h-5 animate-spin text-yellow-400" />
             <span>Loading Golaghat Adda discussions...</span>
           </div>
-        ) : feedComments.length === 0 ? (
+        ) : filteredFeedComments.length === 0 ? (
           <div className="p-8 rounded-3xl bg-[#160829] border border-purple-800/40 text-center">
             <Sparkles className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-            <h3 className="text-white font-bold text-base">Be the first to post!</h3>
-            <p className="text-xs text-purple-300 mt-1">
-              No comments yet. Set a nickname above and share your Moina or Babu reaction!
+            <h3 className="text-white font-bold text-base">
+              {selectedTopicId ? 'No comments found for this topic' : 'Be the first to post!'}
+            </h3>
+            <p className="text-xs text-purple-300 mt-1 max-w-sm mx-auto">
+              {selectedTopicId
+                ? 'No one has discussed this topic yet. Be the first to start the banter above!'
+                : 'No comments yet. Set a nickname above and share your Moina or Babu reaction!'}
             </p>
+            {selectedTopicId && (
+              <button
+                onClick={() => setSelectedTopicId(null)}
+                className="mt-4 px-4 py-2 rounded-xl bg-purple-900/60 hover:bg-purple-800 text-yellow-300 text-xs font-semibold transition"
+              >
+                Show All Discussions
+              </button>
+            )}
           </div>
         ) : (
-          feedComments.map((comment) => (
+          filteredFeedComments.map((comment) => (
             <CommentCard
               key={comment.id}
               comment={comment}
