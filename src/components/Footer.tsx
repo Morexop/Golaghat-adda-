@@ -62,6 +62,11 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
               </li>
               <li>
+                <a href="#community-memes" className="hover:text-yellow-400 transition">
+                  🌟 User Meme Feed
+                </a>
+              </li>
+              <li>
                 <a href="#public-adda" className="hover:text-cyan-400 transition">
                   💬 Golaghat Public Adda
                 </a>

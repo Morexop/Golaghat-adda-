@@ -157,6 +157,38 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // Community User-Submitted Memes
+    match /communityMemes/{memeId} {
+      function isValidMeme() {
+        return incoming().authorUid is string &&
+          incoming().authorUid.size() >= 2 &&
+          (isSignedIn() ? incoming().authorUid == request.auth.uid : true) &&
+          incoming().nickname is string &&
+          incoming().nickname.size() >= 2 &&
+          incoming().nickname.size() <= 24 &&
+          incoming().setup is string &&
+          incoming().setup.size() >= 3 &&
+          incoming().setup.size() <= 300 &&
+          incoming().punchline is string &&
+          incoming().punchline.size() >= 2 &&
+          incoming().punchline.size() <= 300 &&
+          incoming().category in ['moina', 'babu', 'golaghat'] &&
+          incoming().status in ['published', 'hidden', 'flagged'] &&
+          incoming().sharesCount is number &&
+          incoming().sharesCount >= 0 &&
+          incoming().laughCount is number &&
+          incoming().laughCount >= 0;
+      }
+
+      allow read: if true;
+      allow create: if isValidId(memeId) && isValidMeme();
+      allow update: if isValidId(memeId) && (
+        isAdmin() ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['sharesCount', 'laughCount', 'status']))
+      );
+      allow delete: if isValidId(memeId);
+    }
+
     // Site Settings (e.g. pinned announcement)
     match /siteSettings/{settingId} {
       allow read: if true;

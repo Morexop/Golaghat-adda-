@@ -162,6 +162,17 @@ export const Hero: React.FC<HeroProps> = ({
         )}
 
         <button
+          onClick={() => {
+            const el = document.getElementById('community-memes');
+            el?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-yellow-300 hover:text-white transition py-2 px-4 rounded-2xl bg-purple-950/50 border border-yellow-400/40 hover:border-yellow-400 cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-yellow-400" />
+          <span>User Memes Feed 🌟</span>
+        </button>
+
+        <button
           onClick={onScrollToAdda}
           className="inline-flex items-center gap-2 text-xs sm:text-sm text-purple-300 hover:text-cyan-300 transition py-2 px-4 rounded-2xl bg-purple-950/50 border border-purple-800/40 hover:border-cyan-400/40 cursor-pointer"
         >

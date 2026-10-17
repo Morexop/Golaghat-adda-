@@ -59,16 +59,23 @@ export const Header: React.FC<HeaderProps> = ({ onNavClick, onOpenRules, onOpenS
             </button>
             <button
               onClick={() => handleLinkClick('comedy-section')}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-purple-200 hover:text-pink-400 hover:bg-purple-900/30 rounded-xl transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-200 hover:text-pink-400 hover:bg-purple-900/30 rounded-xl transition cursor-pointer"
             >
-              <Laugh className="w-4 h-4 text-pink-400" />
+              <Laugh className="w-3.5 h-3.5 text-pink-400" />
               Comedy
             </button>
             <button
-              onClick={() => handleLinkClick('public-adda')}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-purple-200 hover:text-cyan-400 hover:bg-purple-900/30 rounded-xl transition"
+              onClick={() => handleLinkClick('community-memes')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-200 hover:text-yellow-400 hover:bg-purple-900/30 rounded-xl transition cursor-pointer"
             >
-              <MessageSquare className="w-4 h-4 text-cyan-400" />
+              <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+              User Memes
+            </button>
+            <button
+              onClick={() => handleLinkClick('public-adda')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-200 hover:text-cyan-400 hover:bg-purple-900/30 rounded-xl transition cursor-pointer"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
               Public Adda
             </button>
             <button
@@ -185,6 +192,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavClick, onOpenRules, onOpenS
           >
             <Laugh className="w-4 h-4 text-pink-400" />
             🎭 Comedy Generator
+          </button>
+          <button
+            onClick={() => handleLinkClick('community-memes')}
+            className="w-full flex items-center gap-2 text-left px-3.5 py-2.5 rounded-xl text-sm font-medium text-purple-200 hover:bg-purple-900/40 hover:text-yellow-400 transition"
+          >
+            <Sparkles className="w-4 h-4 text-yellow-400" />
+            🌟 User Meme Feed
           </button>
           <button
             onClick={() => handleLinkClick('public-adda')}

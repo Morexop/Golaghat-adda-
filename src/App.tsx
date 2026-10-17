@@ -11,6 +11,11 @@ import { PublicAdda } from './components/PublicAdda';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ShareAppModal } from './components/ShareAppModal';
 import { InstallAndroidModal } from './components/InstallAndroidModal';
+import { CommunityMemesFeed } from './components/CommunityMemesFeed';
+import { SubmitMemeModal } from './components/SubmitMemeModal';
+import { NicknameModal } from './components/NicknameModal';
+import { getSavedNickname, saveUserNickname } from './services/commentService';
+import { CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<SchemeCategory | null>(null);
@@ -18,7 +23,16 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isSubmitMemeOpen, setIsSubmitMemeOpen] = useState(false);
+  const [isNicknameModalOpen, setIsNicknameModalOpen] = useState(false);
+  const [nickname, setNickname] = useState<string>(getSavedNickname());
+  const [globalToast, setGlobalToast] = useState<string | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  const showToast = (msg: string) => {
+    setGlobalToast(msg);
+    setTimeout(() => setGlobalToast(null), 4000);
+  };
 
   // Capture Android PWA install prompt
   React.useEffect(() => {
@@ -82,6 +96,12 @@ export default function App() {
           </div>
         )}
 
+        {/* Community User-Submitted Memes Feed */}
+        <CommunityMemesFeed
+          onOpenSubmitModal={() => setIsSubmitMemeOpen(true)}
+          onOpenShareModal={() => setIsShareModalOpen(true)}
+        />
+
         {/* Golaghat Public Adda Comments Feed */}
         <PublicAdda />
       </main>
@@ -95,6 +115,14 @@ export default function App() {
         onOpenShare={() => setIsShareModalOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
       />
+
+      {/* Global Toast */}
+      {globalToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 p-4 rounded-2xl bg-emerald-950 border border-emerald-500/60 text-emerald-200 text-xs sm:text-sm shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-bottom-5">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span>{globalToast}</span>
+        </div>
+      )}
 
       {/* Modal Dialogs */}
       <InfoModals
@@ -119,6 +147,27 @@ export default function App() {
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
         deferredPrompt={deferredPrompt}
+      />
+
+      {/* Submit Meme Modal */}
+      <SubmitMemeModal
+        isOpen={isSubmitMemeOpen}
+        onClose={() => setIsSubmitMemeOpen(false)}
+        nickname={nickname}
+        onOpenNicknameModal={() => setIsNicknameModalOpen(true)}
+        onSuccess={() => showToast('Meme published! Other users can now see and share it! 🚀')}
+      />
+
+      {/* Nickname Modal */}
+      <NicknameModal
+        isOpen={isNicknameModalOpen}
+        initialNickname={nickname}
+        onClose={() => setIsNicknameModalOpen(false)}
+        onSave={async (newNick) => {
+          const profile = await saveUserNickname(newNick);
+          setNickname(profile.nickname);
+          showToast(`Nickname set to @${profile.nickname}! 🎉`);
+        }}
       />
     </div>
   );
