@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-dark: #0d0417;
+    --bg-surface: #190b2b;
+    --bg-card: #220f3b;
+    --yellow-bright: #ffd23f;
+    --pink-moina: #ff3385;
+    --blue-babu: #00d2ff;
+  }
+
+  body {
+    background-color: #0d0417;
+    color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-bungee {
+    font-family: 'Bungee', cursive, sans-serif;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Custom scrollbar for Adda feed */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #150824;
+}
+::-webkit-scrollbar-thumb {
+  background: #3c1e66;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5b2d9b;
+}
+
+/* Accessible focus ring */
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid #ffd23f;
+  outline-offset: 2px;
+}
+
+/* Glow effects */
+.glow-yellow {
+  box-shadow: 0 0 25px rgba(255, 210, 63, 0.25);
+}
+
+.glow-pink {
+  box-shadow: 0 0 25px rgba(255, 51, 133, 0.3);
+}
+
+.glow-blue {
+  box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+}

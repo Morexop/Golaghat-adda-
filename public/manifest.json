@@ -1,0 +1,50 @@
+{
+  "id": "/",
+  "short_name": "GolaghatAdda",
+  "name": "Golaghat Adda 😂 | Assamese Comedy & Community",
+  "description": "Golaghat’s comedy portal with 40+ jokes and live Public Adda community.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0417",
+  "theme_color": "#1a0b2e",
+  "categories": ["entertainment", "social"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a0b2e'/><text y='.9em' x='5' font-size='80'>😂</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a0b2e'/><text y='.85em' x='10' font-size='70'>😂</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Moina Asoni (Female 👧)",
+      "short_name": "Moina",
+      "description": "Browse Moina Asoni comedy jokes",
+      "url": "/#comedy-section",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>", "sizes": "96x96" }]
+    },
+    {
+      "name": "Babu Asoni (Male 👦)",
+      "short_name": "Babu",
+      "description": "Browse Babu Asoni comedy jokes",
+      "url": "/#comedy-section",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍗</text></svg>", "sizes": "96x96" }]
+    },
+    {
+      "name": "Golaghat Public Adda",
+      "short_name": "Public Adda",
+      "description": "Join live Golaghat community discussions",
+      "url": "/#public-adda",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>", "sizes": "96x96" }]
+    }
+  ]
+}

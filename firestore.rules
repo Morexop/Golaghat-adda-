@@ -1,0 +1,166 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Admin helper: authenticated user with email morexop18@gmail.com or admin document
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'morexop18@gmail.com') ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Public Profiles
+    match /publicProfiles/{uid} {
+      allow get: if isValidId(uid);
+      allow list: if false;
+      allow create, update: if isValidId(uid) &&
+        incoming().authorUid is string &&
+        incoming().authorUid == uid &&
+        incoming().nickname is string &&
+        incoming().nickname.size() >= 2 &&
+        incoming().nickname.size() <= 24;
+      allow delete: if isAdmin() || (isSignedIn() && isOwner(uid));
+    }
+
+    // Comments
+    match /comments/{commentId} {
+      function isValidComment() {
+        return incoming().authorUid is string &&
+          incoming().authorUid.size() >= 2 &&
+          (isSignedIn() ? incoming().authorUid == request.auth.uid : true) &&
+          incoming().nickname is string &&
+          incoming().nickname.size() >= 2 &&
+          incoming().nickname.size() <= 24 &&
+          incoming().text is string &&
+          incoming().text.size() >= 1 &&
+          incoming().text.size() <= 500 &&
+          incoming().status in ['published', 'hidden', 'flagged'] &&
+          incoming().likeCount is number &&
+          incoming().likeCount >= 0 &&
+          incoming().replyCount is number &&
+          incoming().replyCount >= 0;
+      }
+
+      allow read: if true;
+      
+      allow create: if isValidId(commentId) && isValidComment();
+
+      allow update: if isValidId(commentId) && (
+        isAdmin() ||
+        // User updating their own comment text
+        (isSignedIn() && isOwner(existing().authorUid) &&
+          incoming().authorUid == existing().authorUid &&
+          incoming().text is string &&
+          incoming().text.size() <= 500 &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['text', 'status'])) ||
+        // Like, reply, or reaction counter updates
+        (incoming().diff(existing()).affectedKeys().hasOnly(['likeCount', 'replyCount', 'reactions', 'isPinned', 'pinnedReason', 'status']))
+      );
+
+      allow delete: if isValidId(commentId);
+
+      // Nested Replies Subcollection
+      match /replies/{replyId} {
+        function isValidReply() {
+          return incoming().commentId == commentId &&
+            incoming().authorUid is string &&
+            incoming().authorUid.size() >= 2 &&
+            (isSignedIn() ? incoming().authorUid == request.auth.uid : true) &&
+            incoming().nickname is string &&
+            incoming().nickname.size() >= 2 &&
+            incoming().nickname.size() <= 24 &&
+            incoming().text is string &&
+            incoming().text.size() >= 1 &&
+            incoming().text.size() <= 500 &&
+            incoming().status in ['published', 'hidden', 'flagged'] &&
+            incoming().likeCount is number &&
+            incoming().likeCount >= 0;
+        }
+
+        allow read: if true;
+
+        allow create: if isValidId(replyId) && isValidReply();
+
+        allow update: if isValidId(replyId) && (
+          isAdmin() ||
+          (isSignedIn() && isOwner(existing().authorUid) &&
+            incoming().authorUid == existing().authorUid &&
+            incoming().text is string &&
+            incoming().text.size() <= 500) ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['likeCount', 'status']))
+        );
+
+        allow delete: if isValidId(replyId);
+      }
+
+      // Likes Subcollection
+      match /likes/{likeUid} {
+        allow read: if true;
+        allow create, delete: if isValidId(likeUid);
+      }
+
+      // Reactions Subcollection (😂, ❤️, 🔥, etc.)
+      match /reactions/{reactionUid} {
+        allow read: if true;
+        allow create, update, delete: if isValidId(reactionUid);
+      }
+    }
+
+    // Pin Suggestions
+    match /pinSuggestions/{suggestionId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.requesterUid == request.auth.uid);
+      allow create: if isValidId(suggestionId) &&
+        incoming().targetCommentId is string &&
+        incoming().reason is string &&
+        incoming().reason.size() <= 300 &&
+        incoming().commentText is string &&
+        incoming().commentText.size() <= 500 &&
+        incoming().status == 'pending';
+      allow update, delete: if isValidId(suggestionId) && isAdmin();
+    }
+
+    // Reports (Protected)
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if isValidId(reportId) &&
+        incoming().targetId is string &&
+        incoming().reason is string &&
+        incoming().reason.size() <= 100 &&
+        incoming().status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    // Site Settings (e.g. pinned announcement)
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Asoni Palu Ne? 😂",
+  "description": "An unofficial, mobile-first Assamese comedy and community website inspired by Moina Asoni and Babu Asoni in Golaghat, Assam.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
